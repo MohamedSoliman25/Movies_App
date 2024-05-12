@@ -1,6 +1,7 @@
 package com.blinkllc.movieapp.movieList.presentation.ui
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blinkllc.movieapp.databinding.ActivityMainBinding
 import com.blinkllc.movieapp.movieList.data.local.entities.Movie
+import com.blinkllc.movieapp.movieList.presentation.Utils.MOVIE_DATA
 import com.blinkllc.movieapp.movieList.presentation.adapters.MovieListAdapter
 import com.blinkllc.movieapp.movieList.presentation.viewmodel.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,14 +44,13 @@ class MainActivity : AppCompatActivity() {
     private fun observeInsertedMovie(){
         viewModel.moviesInserted.observe(this) { inserted ->
             if (inserted) {
-                Log.d(TAG, "onCreatedads: "+inserted)
                 observeAllMovies()
             }
         }
     }
     private fun observeAllMovies(){
         viewModel.allMovies.observe(this){movies->
-            Log.d(TAG, "observeAllMoviesMoo: "+movies)
+            Log.d(TAG, "observeAllMovies: "+movies)
             getMoviesAdapter()?.updateData(movies)
         }
     }
@@ -60,8 +61,8 @@ class MainActivity : AppCompatActivity() {
             adapter = MovieListAdapter(ArrayList(), ::onItemClick)
         }
     }
-    private fun onItemClick(movie: Movie, position: Int) {
-        Log.d(TAG, "onItemClick: "+movie+" , "+position)
+    private fun onItemClick(movie: Movie) {
+        goToMovieDetails(movie)
     }
     private fun getMoviesAdapter() =
         binding.movieSearchResult.adapter as? MovieListAdapter
@@ -92,20 +93,25 @@ class MainActivity : AppCompatActivity() {
 //        })
     }
     private fun observeMoviesByYear(){
-        lifecycleScope.launchWhenStarted {
-            viewModel.searchedMovies.collect{
-                getMoviesAdapter()?.updateData(it)
+            viewModel.moviesLiveData.observe(this@MainActivity){
+                if (it.isNotEmpty()) {
+                    getMoviesAdapter()?.updateData(emptyList())
+                    getMoviesAdapter()?.updateData(it)
+                }
             }
-
-        }
-
     }
     private fun getMoviesByYear(year:Int){
-        viewModel.searchMovies(year)
+        viewModel.getMoviesByYear(year)
     }
 
-private fun hideKeyboard(){
+    private fun hideKeyboard(){
     val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(binding.searchMovieEditText.windowToken, 0)
-}
+    }
+
+    private fun goToMovieDetails(movie: Movie){
+        val intent = Intent(this@MainActivity, MovieDetailsActivity::class.java)
+        intent.putExtra(MOVIE_DATA, movie)
+        startActivity(intent)
+    }
 }

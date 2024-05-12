@@ -2,6 +2,7 @@ package com.blinkllc.movieapp.movieList.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "movies")
 data class Movie(
@@ -12,4 +13,4 @@ data class Movie(
     var cast: List<String>,
     var genres: List<String>,
     var rating: Int
-)
+): Serializable

@@ -16,6 +16,7 @@ interface MovieDao {
     @Query("SELECT * FROM movies")
     fun getAllMovies(): LiveData<List<Movie>>
 
-    @Query("SELECT * FROM movies WHERE year = :year")
-    fun getMoviesByYear(year: Int): Flow<List<Movie>>
+//    @Query("SELECT * FROM movies WHERE year = :year")
+@Query("SELECT * FROM movies WHERE year = :year ORDER BY rating DESC LIMIT 5")
+fun getMoviesByYear(year: Int): List<Movie>
 }

@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface MovieRepository {
     suspend fun insertMovies(movies: List<Movie>)
     fun getAllMovies(): LiveData<List<Movie>>
-    suspend fun getMoviesByYear(year: Int): Flow<List<Movie>>
+    suspend fun getMoviesByYear(year: Int): List<Movie>
 }

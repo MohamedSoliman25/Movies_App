@@ -1,22 +1,25 @@
 package com.blinkllc.movieapp.movieList.presentation.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blinkllc.movieapp.databinding.MovieListItemBinding
+import com.blinkllc.movieapp.databinding.PhotoListItemBinding
 import com.blinkllc.movieapp.movieList.data.local.entities.Movie
+import com.blinkllc.movieapp.movieList.domain.model.Photo
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlin.properties.Delegates
 
-class MovieListAdapter(
-    list: List<Movie> = emptyList(),
-    private val onItemClick: (Movie) -> Unit
+class PhotoListAdapter(
+    list: List<Photo> = emptyList()
 
-) : RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PhotoListAdapter.ViewHolder>() {
 
-    private var list: List<Movie> by Delegates.observable(list) { _, old, new ->
+    private var list: List<Photo> by Delegates.observable(list) { _, old, new ->
         DiffUtil.calculateDiff(
             object : DiffUtil.Callback() {
                 override fun getOldListSize() = old.size
@@ -31,13 +34,13 @@ class MovieListAdapter(
 
             }
         ).also { result ->
-            result.dispatchUpdatesTo(this@MovieListAdapter)
+            result.dispatchUpdatesTo(this@PhotoListAdapter)
         }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         return ViewHolder(
-            MovieListItemBinding.inflate(
+            PhotoListItemBinding.inflate(
                 LayoutInflater.from(viewGroup.context),
                 viewGroup,
                 false
@@ -46,32 +49,33 @@ class MovieListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(list[position], onItemClick)
+        holder.bind(list[position])
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-    fun updateData(newList: List<Movie>) {
-        Log.d("TAG", "updateDatadas: "+newList)
+    fun updateData(newList: List<Photo>) {
         list = newList
     }
 
     class ViewHolder(
-        private val binding: MovieListItemBinding
+        private val binding: PhotoListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(movie: Movie, onItemClick: (Movie) -> Unit
-        ) {
+        fun bind(photo: Photo) {
             binding.apply {
-
-                movieTitle.text = movie.title
-                movieYear.text = "Year : ${movie.year}"
-                movieRating.text = "Rating : ${movie.rating}"
-                root.setOnClickListener {
-                    onItemClick(movie)
-                }
+                val imageUrl = "https://farm${photo.farm}.static.flickr.com/${photo.server}/${photo.id}_${photo.secret}.jpg"
+                fetchImageWithGlide(imageUrl,movieImg)
             }
+
+        }
+        private fun fetchImageWithGlide(imageUrl:String,movieImg: ImageView){
+            // Load image into an ImageView
+            Glide.with(movieImg.context)
+                .load(imageUrl)
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // Optional: Cache image
+                .into(movieImg)
 
         }
     }

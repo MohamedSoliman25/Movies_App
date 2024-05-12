@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import com.blinkllc.movieapp.movieList.data.local.dao.MovieDao
 import com.blinkllc.movieapp.movieList.data.local.entities.Movie
 import com.blinkllc.movieapp.movieList.domain.repository.MovieRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MovieRepositoryImp @Inject constructor(private val movieDao: MovieDao) :MovieRepository{
@@ -13,8 +15,10 @@ class MovieRepositoryImp @Inject constructor(private val movieDao: MovieDao) :Mo
     }
 
     override fun getAllMovies(): LiveData<List<Movie>> = movieDao.getAllMovies()
-    override suspend fun getMoviesByYear(year: Int): Flow<List<Movie>> {
-       return movieDao.getMoviesByYear(year)
+    override suspend fun getMoviesByYear(year: Int): List<Movie> {
+        return withContext(Dispatchers.IO) {
+            movieDao.getMoviesByYear(year)
+        }
     }
 
 }
